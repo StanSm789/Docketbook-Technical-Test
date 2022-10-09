@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Print("Hello World!!!")
+	router := gin.Default()
+	router.Run("localhost:8080")
 }
