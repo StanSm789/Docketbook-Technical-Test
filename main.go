@@ -24,6 +24,25 @@ func getDockets(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, dockets)
 }
 
+// This function handles GET request to /dockets/:id endpoint and then returns the response as JSON file
+func getDocketById(c *gin.Context) {
+	// Get id 
+	id := c.Param("id")
+
+	// assemle single docket URL
+	docketsUrl := os.Getenv("DOCKETS_URL") + "/" + id
+
+	// Get the response from single docket URL as []uint8 type
+	responseData := getResponseData(docketsUrl, os.Getenv("SHARED_KEY_ID"), os.Getenv("SHARED_KEY"))
+
+	// Unmarshal data into Docket
+	var docket models.Docket
+	json.Unmarshal([]byte(responseData), &docket)
+
+	// Return the response as indented JSON
+	c.IndentedJSON(http.StatusOK, docket)
+}
+
 // This function fetches data from an endpoint
 func getResponseData(endpoint string, sharedKeyId string, sharedKey string) []uint8 {
 	// Create client
@@ -68,7 +87,9 @@ func init() {
 }
 
 func main() {
+	// Initialize router and rountes, then run the router
 	router := gin.Default()
 	router.GET("/dockets", getDockets)
+	router.GET("/dockets/:id", getDocketById)
 	router.Run("localhost:8080")
 }
