@@ -5,10 +5,26 @@ import (
 	"fmt"
 	"os"
 	"io/ioutil"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"task/docketbook-technical-test/models"
 )
 
+// This function handles GET request to /dockets endpoint and then returns the response as JSON file
+func getDockets(c *gin.Context) {
+	// Get the response from dockets URL as []uint8 type
+	responseData := getResponseData(os.Getenv("DOCKETS_URL"), os.Getenv("SHARED_KEY_ID"), os.Getenv("SHARED_KEY"))
+
+	// Unmarshal data into array
+	var dockets []models.Docket
+	json.Unmarshal([]byte(responseData), &dockets)
+	
+	// Return the response as indented JSON
+	c.IndentedJSON(http.StatusOK, dockets)
+}
+
+// This function fetches data from an endpoint
 func getResponseData(endpoint string, sharedKeyId string, sharedKey string) []uint8 {
 	// Create client
 	client := &http.Client{}
@@ -53,5 +69,6 @@ func init() {
 
 func main() {
 	router := gin.Default()
+	router.GET("/dockets", getDockets)
 	router.Run("localhost:8080")
 }
